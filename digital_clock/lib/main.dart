@@ -17,11 +17,11 @@ void main() async {
   }
 
   /// ensure app is only showing in landscape mode
-  /*WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
-  ]);*/
+  ]);
 
   /// we just created new flutter project so,
   /// the [MyClockCustomizer] is same as [ClockCustomizer] from flutter_clock_helper
