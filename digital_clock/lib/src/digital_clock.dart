@@ -113,106 +113,90 @@ class _DigitalClockState extends State<DigitalClock> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return GestureDetector(
-      onTap: (){
-        final m = widget.model;
-        switch(step){
-          case 0: m.isCharging = true;break;
-          case 1: m.isCharging = false;break;
-          case 2: m.showSecondTick = false;break;
-          case 3: m.showSecondTickBackground = false;break;
-          case 4: m.showSecondTickBackground = true;break;
-          case 5: m.showSecondTick = true;break;
-          case 6: m.themeMode = ThemeMode.dark;break;
-          default: step = 0;
-        }
-        step++;
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: isDark ? darkBackground : lightGradient,
-        ),
-        child: Stack(
-          children: [
-            Clock(
-              model: widget.model,
+    return Container(
+      decoration: BoxDecoration(
+        gradient: isDark ? darkBackground : lightGradient,
+      ),
+      child: Stack(
+        children: [
+          Clock(
+            model: widget.model,
+          ),
+          AnimatedAlign(
+            alignment: Alignment(
+              showCharging ? 0 : -0.17,
+              isHidingTickCompletely ? -0.83 : -0.75,
             ),
-            AnimatedAlign(
-              alignment: Alignment(
-                showCharging ? 0 : -0.17,
-                isHidingTickCompletely ? -0.83 : -0.75,
-              ),
-              curve: Curves.easeInOut,
-              duration: animDuration400,
-              child: HeaderIcon(
-                showCharging: showCharging,
-                iconName: widget.model.weatherString,
-              ),
+            curve: Curves.easeInOut,
+            duration: animDuration400,
+            child: HeaderIcon(
+              showCharging: showCharging,
+              iconName: widget.model.weatherString,
             ),
-            AnimatedAlign(
-              alignment: Alignment(0.0, isHidingTickCompletely ? -0.53 : -0.45),
-              curve: Curves.easeInOut,
-              duration: animDuration400,
-              child: HeaderStatus(
-                showCharging: showCharging,
-                chargeTime: widget.model.chargeTime,
-                weatherState: widget.model.weatherString,
-                temperature: widget.model.temperatureString,
-              ),
+          ),
+          AnimatedAlign(
+            alignment: Alignment(0.0, isHidingTickCompletely ? -0.53 : -0.45),
+            curve: Curves.easeInOut,
+            duration: animDuration400,
+            child: HeaderStatus(
+              showCharging: showCharging,
+              chargeTime: widget.model.chargeTime,
+              weatherState: widget.model.weatherString,
+              temperature: widget.model.temperatureString,
             ),
-            AnimatedAlign(
-              alignment: Alignment(
-                0,
-                isHidingTickCompletely ? 0.49 : 0.41,
-              ),
-              curve: Curves.easeInOut,
-              duration: animDuration400,
-              child: LocationName(
-                name: widget.model.location,
-              ),
+          ),
+          AnimatedAlign(
+            alignment: Alignment(
+              0,
+              isHidingTickCompletely ? 0.49 : 0.41,
             ),
-            ExcludeSemantics(
-              child: AnimatedOpacity(
-                duration: animDuration300,
-                opacity: showCharging ? 0 : 1,
-                child: AnimatedAlign(
-                  curve: Curves.easeInOut,
-                  duration: animDuration400,
-                  alignment: Alignment(
-                    !showCharging ? 0.18 : 0.17,
-                    isHidingTickCompletely ? -0.78 : -0.71,
+            curve: Curves.easeInOut,
+            duration: animDuration400,
+            child: LocationName(
+              name: widget.model.location,
+            ),
+          ),
+          ExcludeSemantics(
+            child: AnimatedOpacity(
+              duration: animDuration300,
+              opacity: showCharging ? 0 : 1,
+              child: AnimatedAlign(
+                curve: Curves.easeInOut,
+                duration: animDuration400,
+                alignment: Alignment(
+                  !showCharging ? 0.18 : 0.17,
+                  isHidingTickCompletely ? -0.78 : -0.71,
+                ),
+                child: Text.rich(
+                  TextSpan(
+                    text: widget.model.temperatureWithoutUnit,
+                    children: [
+                      TextSpan(
+                        text: widget.model.unitString[0],
+                        style: TextStyle(
+                          fontSize: Utility.textSize16,
+                          color: theme.primaryColorLight,
+                        ),
+                      ),
+                      TextSpan(
+                        text: widget.model.unitString[1],
+                        style: TextStyle(
+                          fontSize: Utility.textSize11,
+                          color: theme.primaryColorLight,
+                        ),
+                      ),
+                    ],
                   ),
-                  child: Text.rich(
-                    TextSpan(
-                      text: widget.model.temperatureWithoutUnit,
-                      children: [
-                        TextSpan(
-                          text: widget.model.unitString[0],
-                          style: TextStyle(
-                            fontSize: Utility.textSize16,
-                            color: theme.primaryColorLight,
-                          ),
-                        ),
-                        TextSpan(
-                          text: widget.model.unitString[1],
-                          style: TextStyle(
-                            fontSize: Utility.textSize11,
-                            color: theme.primaryColorLight,
-                          ),
-                        ),
-                      ],
-                    ),
-                    style: TextStyle(
-                      color: theme.primaryColorLight,
-                      fontSize: Utility.textSize18,
-                      fontFamily: 'Lato',
-                    ),
+                  style: TextStyle(
+                    color: theme.primaryColorLight,
+                    fontSize: Utility.textSize18,
+                    fontFamily: 'Lato',
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
