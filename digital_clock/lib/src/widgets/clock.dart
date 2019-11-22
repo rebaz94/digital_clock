@@ -1,14 +1,11 @@
-import 'dart:async';
-
 import 'package:digital_clock/src/utility/utility.dart';
 import 'package:digital_clock/src/widgets/active_tick.dart';
 import 'package:digital_clock/src/clock_customizer/clock_model.dart';
 import 'package:digital_clock/src/widgets/inactive_tick.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 /// This class shows Current time along with current second
-/// this class optimized so that whenever [InactiveTick] and [ActiveTick] is hided,
-/// it just update one minute per time. otherwise it will be updated every second, and anything change from [ClockModel] will be updated directly.
 class Clock extends StatefulWidget {
   final ClockModel model;
 
@@ -18,144 +15,135 @@ class Clock extends StatefulWidget {
   _ClockState createState() => _ClockState();
 }
 
-class _ClockState extends State<Clock> {
-  DateTime _now = DateTime.now();
-  Timer _timer;
+class _ClockState extends State<Clock> with SingleTickerProviderStateMixin {
+  ClockModel _model;
 
-  ClockModel model;
+  AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    model = widget.model;
-    model.addListener(_updateModel);
+    _controller = AnimationController(
+      duration: Duration(seconds: 1),
+      vsync: this,
+    );
+    _controller.repeat();
 
-    model.update(DateTime.now());
-    _updateTime();
+    _model = widget.model;
+    _model.addListener(_updateModel);
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
-    model.removeListener(_updateModel);
+    _model.removeListener(_updateModel);
+    _controller.removeListener(_updateModel);
+    _controller.dispose();
     super.dispose();
   }
 
   void _updateModel() {
-    _updateTime();
-  }
-
-  void _updateTime() {
-    if (!mounted) return;
-    setState(() {
-      _now = DateTime.now();
-      // Update once per second. Make sure to do it at the beginning of each
-      // new second, so that the clock is accurate.
-      if (model.hideSecondTick) {
-        _timer = Timer(
-          Duration(seconds: 60) -
-              (Duration(milliseconds: _now.millisecond) +
-                  Duration(seconds: _now.second)),
-          _updateTime,
-        );
-      } else {
-        _timer = Timer(
-          Duration(seconds: 1) - Duration(milliseconds: _now.millisecond),
-          _updateTime,
-        );
-      }
-    });
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    final isHidingTickCompletely =
-        model.hideSecondTick && model.hideSecondBackground;
-    final theme = Theme.of(context);
-    model.update(DateTime.now());
-
-    return Stack(
-      children: <Widget>[
-        AnimatedOpacity(
-          opacity: model.hideSecondBackground ? 0 : 1,
-          duration: const Duration(milliseconds: 1000),
-          child: const InactiveTick(),
-        ),
-        AnimatedOpacity(
-          opacity: model.hideSecondTick ? 0 : 1,
-          duration: const Duration(milliseconds: 1000),
-          child: ActiveTick(
-            date: model.dateTime,
-            tickColor: theme.primaryColor,
-            isHided: model.hideSecondTick,
-          ),
-        ),
-        Align(
-          alignment: Alignment(0, 0),
-          child: Text(
-            model.hourTime,
-            style: TextStyle(
-              color: theme.primaryColor,
-              fontSize: Utility.textSize48,
-              letterSpacing: 3,
-              fontFamily: 'Lato',
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (_, __) {
+        final theme = Theme.of(context);
+        final isHidingTickCompletely =
+            _model.hideSecondTick && _model.hideSecondBackground;
+        _model.update(DateTime.now());
+        return Stack(
+          children: <Widget>[
+            AnimatedOpacity(
+              opacity: _model.hideSecondBackground ? 0 : 1,
+              duration: const Duration(milliseconds: 1000),
+              child: const InactiveTick(),
             ),
-          ),
-        ),
-        AnimatedAlign(
-          alignment: Alignment(0, isHidingTickCompletely ? 0.73 : 0.65),
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
-          child: Text.rich(
-            TextSpan(text: model.weekTime, children: [
-              if (isHidingTickCompletely)
-                TextSpan(
-                  text: '${model.monthName}',
+            AnimatedOpacity(
+              opacity: _model.hideSecondTick ? 0 : 1,
+              duration: const Duration(milliseconds: 1000),
+              child: ActiveTick(
+                second: _model.dateTime.second + 1,
+                tickColor: theme.primaryColor,
+                isHided: _model.hideSecondTick,
+              ),
+            ),
+            Align(
+              alignment: const Alignment(0, 0),
+              child: Text(
+                _model.hourTime,
+                style: TextStyle(
+                  color: theme.primaryColor,
+                  fontSize: Utility.textSize48,
+                  letterSpacing: 3,
+                  fontFamily: 'Lato',
+                ),
+                semanticsLabel: 'Digital clock with'
+                    ' time ${widget.model.currentTime}',
+              ),
+            ),
+            ExcludeSemantics(
+              child: AnimatedOpacity(
+                opacity: isHidingTickCompletely ? 0 : 1,
+                duration: const Duration(milliseconds: 400),
+                child: Align(
+                  alignment: const Alignment(0.49, -0.03),
+                  child: Text(
+                    _model.month,
+                    style: TextStyle(
+                      color: theme.primaryColorDark,
+                      fontSize: Utility.textSize18,
+                      fontFamily: 'Lato',
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            AnimatedAlign(
+              alignment: Alignment(0, isHidingTickCompletely ? 0.73 : 0.65),
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeInOut,
+              child: Text.rich(
+                TextSpan(text: _model.weekTime, children: [
+                  if (isHidingTickCompletely)
+                    TextSpan(
+                      text: '${_model.monthName}',
+                      style: TextStyle(
+                        color: theme.primaryColorDark,
+                        fontSize: Utility.textSize11,
+                        fontFamily: 'Lato',
+                      ),
+                    )
+                ]),
+                style: TextStyle(
+                  color: theme.accentColor,
+                  fontSize: Utility.textSize24,
+                  fontFamily: 'Lato',
+                ),
+                semanticsLabel: '${_model.weekTimeLong}',
+              ),
+            ),
+            AnimatedOpacity(
+              opacity: _model.is24HourFormat ? 0 : 1,
+              duration: const Duration(milliseconds: 1000),
+              child: Align(
+                alignment: const Alignment(-0.0, 0.05),
+                child: Text(
+                  _model.amPm,
                   style: TextStyle(
-                    color: theme.primaryColorDark,
+                    color: theme.primaryColor,
                     fontSize: Utility.textSize11,
                     fontFamily: 'Lato',
                   ),
-                )
-            ]),
-            style: TextStyle(
-              color: theme.accentColor,
-              fontSize: Utility.textSize24,
-              fontFamily: 'Lato',
-            ),
-          ),
-        ),
-        AnimatedOpacity(
-          opacity: model.is24HourFormat ? 0 : 1,
-          duration: const Duration(milliseconds: 1000),
-          child: Align(
-            alignment: const Alignment(-0.0, 0.05),
-            child: Text(
-              model.amPm,
-              style: TextStyle(
-                color: theme.primaryColor,
-                fontSize: Utility.textSize11,
-                fontFamily: 'Lato',
+                  semanticsLabel: '',
+                ),
               ),
             ),
-          ),
-        ),
-        AnimatedOpacity(
-          opacity: isHidingTickCompletely ? 0 : 1,
-          duration: const Duration(milliseconds: 400),
-          child: Align(
-            alignment: const Alignment(0.49, -0.03),
-            child: Text(
-              model.month,
-              style: TextStyle(
-                color: theme.primaryColorDark,
-                fontSize: Utility.textSize18,
-                fontFamily: 'Lato',
-              ),
-            ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }

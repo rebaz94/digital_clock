@@ -6,13 +6,13 @@ import 'package:flutter/material.dart';
 class ActiveTick extends StatelessWidget {
   const ActiveTick({
     Key key,
-    @required this.date,
+    @required this.second,
     @required this.tickColor,
     @required this.isHided,
   }) : super(key: key);
 
   /// Date used to provide current second
-  final DateTime date;
+  final int second;
 
   /// Color of tick
   final Color tickColor;
@@ -22,12 +22,14 @@ class ActiveTick extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isHided) return const SizedBox();
     return SizedBox.expand(
-      child: CustomPaint(
-        painter: _TickPaint(
-          currentSecond: date.second + 1,
-          tickColor: tickColor,
+      child: ClipRect(
+        child: CustomPaint(
+          painter: _TickPaint(
+            currentSecond: second,
+            tickColor: tickColor,
+            isHided: isHided,
+          ),
         ),
       ),
     );
@@ -44,28 +46,28 @@ class _TickPaint extends CustomPainter {
   /// Color of tick
   final Color tickColor;
 
-  _TickPaint({this.currentSecond, this.tickColor});
+  final bool isHided;
 
-  /// This is used to provide paint object to second from 0 to current second minus one. [the grater part]
-  Paint tickPaint;
-
-  /// This is head of tick which is red in both cases[Dark] or [Light] theme
-  Paint topTickPaint;
+  const _TickPaint({this.currentSecond, this.tickColor, this.isHided});
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (isHided) return;
     double scaleFactor = size.shortestSide / BASE_SIZE;
-
-    tickPaint = Paint()
-      ..color = tickColor
-      ..strokeWidth = 3.0 * scaleFactor;
-    topTickPaint = Paint()
-      ..color = Colors.red
-      ..strokeWidth = tickPaint.strokeWidth + 3;
     _paintTickMarks(canvas, size, scaleFactor);
   }
 
   void _paintTickMarks(Canvas canvas, Size size, double scaleFactor) {
+    /// This is used to provide paint object to second from 0 to current second minus one. [the grater part]
+    Paint tickPaint = Paint()
+      ..color = tickColor
+      ..strokeWidth = 3.0 * scaleFactor;
+
+    /// This is head of tick which is red in both cases[Dark] or [Light] theme
+    Paint topTickPaint = Paint()
+      ..color = Colors.red
+      ..strokeWidth = tickPaint.strokeWidth + 3;
+
     double r = size.shortestSide / 2;
     double tick = 5 * scaleFactor;
     double longTick = 2.0 * tick;
@@ -80,11 +82,7 @@ class _TickPaint extends CustomPainter {
       int i = start < 30 ? 30 : 90;
       i -= start;
 
-      // Get the angle from 12 O'Clock to this tick (radians)
       angleFrom12 = i / 60.0 * 2.0 * pi;
-
-      // Get the angle from 3 O'Clock to this tick
-      // Note: 3 O'Clock corresponds with zero angle in unit circle
       angleFrom3 = pi / 2 - angleFrom12;
 
       canvas.drawLine(

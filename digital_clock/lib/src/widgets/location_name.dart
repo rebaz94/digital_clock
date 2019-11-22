@@ -11,7 +11,11 @@ class LocationName extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       name,
-      style: TextStyle(fontSize: Utility.textSize11, color: Theme.of(context).primaryColorLight),
+      style: TextStyle(
+        fontSize: Utility.textSize11,
+        color: Theme.of(context).primaryColorLight,
+      ),
+      semanticsLabel: 'Location name is $name',
     );
   }
 }

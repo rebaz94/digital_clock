@@ -12,8 +12,10 @@ import 'package:digital_clock/src/widgets/header_icon.dart';
 import 'package:digital_clock/src/widgets/header_status.dart';
 import 'package:digital_clock/src/widgets/location_name.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
-/// This is main widget which is used as a container to wrap all widget and animate between widget whenever anything change from the model.
+/// This is main widget which is used as a container to wrap all widget
+/// and animate between widget whenever anything change from the model.
 class DigitalClock extends StatefulWidget {
   const DigitalClock(this.model);
 
@@ -27,6 +29,24 @@ class _DigitalClockState extends State<DigitalClock> {
   static const Duration updateHeaderDuration = const Duration(seconds: 33);
   static const Duration animDuration400 = const Duration(milliseconds: 400);
   static const Duration animDuration300 = const Duration(milliseconds: 300);
+
+  static const LinearGradient darkBackground = LinearGradient(
+    colors: [
+      Color(0x3337474f), //Colors.blueGrey[800].withOpacity(0.2),
+      Color(0x4d607d8b), //Colors.blueGrey.withOpacity(0.3),
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient lightGradient = LinearGradient(
+    colors: [
+      Color(0xffC9D6FF),
+      Color(0xffeef2f3),
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.centerRight,
+  );
 
   DateTime _now = DateTime.now();
   Timer _timer;
@@ -55,6 +75,8 @@ class _DigitalClockState extends State<DigitalClock> {
     super.dispose();
   }
 
+  /// here we will check if [ClockModel.isCharging] is true so we add a timer
+  /// with duration of [updateHeaderDuration] to animate between weather state and charging state
   void _updateModel() {
     if (!mounted) return;
     setState(() {
@@ -68,6 +90,7 @@ class _DigitalClockState extends State<DigitalClock> {
     });
   }
 
+  /// recreate timer after finished and switch between widget
   void _updateHeader() {
     if (!mounted) return;
     setState(() {
@@ -90,23 +113,7 @@ class _DigitalClockState extends State<DigitalClock> {
 
     return Container(
       decoration: BoxDecoration(
-        gradient: isDark
-            ? LinearGradient(
-                colors: [
-                  Colors.blueGrey[800].withOpacity(0.2),
-                  Colors.blueGrey.withOpacity(0.3),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              )
-            : LinearGradient(
-                colors: [
-                  Color(0xffC9D6FF),
-                  Color(0xffeef2f3),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.centerRight,
-              ),
+        gradient: isDark ? darkBackground : lightGradient,
       ),
       child: Stack(
         children: [
@@ -126,16 +133,14 @@ class _DigitalClockState extends State<DigitalClock> {
             ),
           ),
           AnimatedAlign(
-            alignment: Alignment(
-              0.0,
-              isHidingTickCompletely ? -0.53 : -0.45,
-            ),
+            alignment: Alignment(0.0, isHidingTickCompletely ? -0.53 : -0.45),
             curve: Curves.easeInOut,
             duration: animDuration400,
             child: HeaderStatus(
               showCharging: showCharging,
               chargeTime: widget.model.chargeTime,
               weatherState: widget.model.weatherString,
+              temperature: widget.model.temperatureString,
             ),
           ),
           AnimatedAlign(
@@ -149,40 +154,42 @@ class _DigitalClockState extends State<DigitalClock> {
               name: widget.model.location,
             ),
           ),
-          AnimatedOpacity(
-            duration: animDuration300,
-            opacity: showCharging ? 0 : 1,
-            child: AnimatedAlign(
-              curve: Curves.easeInOut,
-              duration: animDuration400,
-              alignment: Alignment(
-                !showCharging ? 0.18 : 0.17,
-                isHidingTickCompletely ? -0.78 : -0.71,
-              ),
-              child: Text.rich(
-                TextSpan(
-                  text: widget.model.temperatureWithoutUnit,
-                  children: [
-                    TextSpan(
-                      text: widget.model.unitString[0],
-                      style: TextStyle(
-                        fontSize: Utility.textSize16,
-                        color: theme.primaryColorLight,
-                      ),
-                    ),
-                    TextSpan(
-                      text: widget.model.unitString[1],
-                      style: TextStyle(
-                        fontSize: Utility.textSize11,
-                        color: theme.primaryColorLight,
-                      ),
-                    ),
-                  ],
+          ExcludeSemantics(
+            child: AnimatedOpacity(
+              duration: animDuration300,
+              opacity: showCharging ? 0 : 1,
+              child: AnimatedAlign(
+                curve: Curves.easeInOut,
+                duration: animDuration400,
+                alignment: Alignment(
+                  !showCharging ? 0.18 : 0.17,
+                  isHidingTickCompletely ? -0.78 : -0.71,
                 ),
-                style: TextStyle(
-                  color: theme.primaryColorLight,
-                  fontSize: Utility.textSize18,
-                  fontFamily: 'Lato',
+                child: Text.rich(
+                  TextSpan(
+                    text: widget.model.temperatureWithoutUnit,
+                    children: [
+                      TextSpan(
+                        text: widget.model.unitString[0],
+                        style: TextStyle(
+                          fontSize: Utility.textSize16,
+                          color: theme.primaryColorLight,
+                        ),
+                      ),
+                      TextSpan(
+                        text: widget.model.unitString[1],
+                        style: TextStyle(
+                          fontSize: Utility.textSize11,
+                          color: theme.primaryColorLight,
+                        ),
+                      ),
+                    ],
+                  ),
+                  style: TextStyle(
+                    color: theme.primaryColorLight,
+                    fontSize: Utility.textSize18,
+                    fontFamily: 'Lato',
+                  ),
                 ),
               ),
             ),

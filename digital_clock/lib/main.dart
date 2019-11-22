@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'dart:io';
-
 import 'package:digital_clock/src/clock_customizer/clock_customizer.dart';
 import 'package:digital_clock/src/clock_customizer/clock_model.dart';
 import 'package:digital_clock/src/digital_clock.dart';

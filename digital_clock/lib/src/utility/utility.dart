@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// This class used to provide [ThemeData] 
+/// This class used to provide [ThemeData]
 /// and calculating size for different screen size
-/// 
+///
 class Utility {
   static final ThemeData lightTheme = ThemeData.light().copyWith(
     primaryColor: Colors.pink,

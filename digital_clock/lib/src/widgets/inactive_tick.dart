@@ -4,23 +4,19 @@ import 'package:flutter/material.dart';
 
 /// This is background tick behind [ActiveTick] which has some implementation but this one never changes.
 class InactiveTick extends StatelessWidget {
-
   const InactiveTick({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SizedBox.expand(
       child: CustomPaint(
-        painter: _TickPaint(
-          tickColor: Theme.of(context).indicatorColor
-        ),
+        painter: _TickPaint(tickColor: Theme.of(context).indicatorColor),
       ),
     );
   }
 }
 
 class _TickPaint extends CustomPainter {
-
   static const double BASE_SIZE = 320.0;
 
   final Color tickColor;
@@ -35,8 +31,7 @@ class _TickPaint extends CustomPainter {
 
   void _paintTickMarks(Canvas canvas, Size size, double scaleFactor) {
     double r = size.shortestSide / 2;
-    double tick = 5 * scaleFactor,
-        longTick = 2.0 * tick;
+    double tick = 5 * scaleFactor, longTick = 2.0 * tick;
     double p = longTick + 4 * scaleFactor;
     Paint tickPaint = Paint()
       ..color = tickColor
@@ -68,6 +63,6 @@ class _TickPaint extends CustomPainter {
 
   @override
   bool shouldRepaint(_TickPaint oldDelegate) {
-    return oldDelegate != this ||  oldDelegate.tickColor != tickColor;
+    return oldDelegate != this || oldDelegate.tickColor != tickColor;
   }
 }
