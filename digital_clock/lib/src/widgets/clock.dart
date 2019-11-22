@@ -52,22 +52,21 @@ class _ClockState extends State<Clock> with SingleTickerProviderStateMixin {
       builder: (_, __) {
         final theme = Theme.of(context);
         final isHidingTickCompletely =
-            _model.hideSecondTick && _model.hideSecondBackground;
+            !_model.showSecondTick && !_model.showSecondTickBackground;
         _model.update(DateTime.now());
         return Stack(
           children: <Widget>[
             AnimatedOpacity(
-              opacity: _model.hideSecondBackground ? 0 : 1,
+              opacity: _model.showSecondTickBackground ? 1 : 0,
               duration: const Duration(milliseconds: 1000),
               child: const InactiveTick(),
             ),
             AnimatedOpacity(
-              opacity: _model.hideSecondTick ? 0 : 1,
+              opacity: _model.showSecondTick ? 1 : 0,
               duration: const Duration(milliseconds: 1000),
               child: ActiveTick(
                 second: _model.dateTime.second + 1,
                 tickColor: theme.primaryColor,
-                isHided: _model.hideSecondTick,
               ),
             ),
             Align(

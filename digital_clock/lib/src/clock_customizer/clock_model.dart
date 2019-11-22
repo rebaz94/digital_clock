@@ -175,22 +175,22 @@ class ClockModel extends ChangeNotifier {
     }
   }
 
-  get hideSecondBackground => _hideSecondBackground;
-  bool _hideSecondBackground = false;
+  get showSecondTickBackground => _showSecondTickBackground;
+  bool _showSecondTickBackground = true;
 
-  set hideSecondBackground(bool hideSecondBackground) {
-    if (_hideSecondBackground != hideSecondBackground) {
-      _hideSecondBackground = hideSecondBackground;
+  set showSecondTickBackground(bool showSecondTickBackground) {
+    if (_showSecondTickBackground != showSecondTickBackground) {
+      _showSecondTickBackground = showSecondTickBackground;
       notifyListeners();
     }
   }
 
-  get hideSecondTick => _hideSecondTick;
-  bool _hideSecondTick = false;
+  get showSecondTick => _showSecondTick;
+  bool _showSecondTick = true;
 
-  set hideSecondTick(bool hideSecondTick) {
-    if (_hideSecondTick != hideSecondTick) {
-      _hideSecondTick = hideSecondTick;
+  set showSecondTick(bool showSecondTick) {
+    if (_showSecondTick != showSecondTick) {
+      _showSecondTick = showSecondTick;
       notifyListeners();
     }
   }

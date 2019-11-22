@@ -8,7 +8,6 @@ class ActiveTick extends StatelessWidget {
     Key key,
     @required this.second,
     @required this.tickColor,
-    @required this.isHided,
   }) : super(key: key);
 
   /// Date used to provide current second
@@ -16,9 +15,6 @@ class ActiveTick extends StatelessWidget {
 
   /// Color of tick
   final Color tickColor;
-
-  /// This is provided to optimize build method when tick is hided. there is no need to call drawing
-  final bool isHided;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +24,6 @@ class ActiveTick extends StatelessWidget {
           painter: _TickPaint(
             currentSecond: second,
             tickColor: tickColor,
-            isHided: isHided,
           ),
         ),
       ),
@@ -46,13 +41,13 @@ class _TickPaint extends CustomPainter {
   /// Color of tick
   final Color tickColor;
 
-  final bool isHided;
-
-  const _TickPaint({this.currentSecond, this.tickColor, this.isHided});
+  const _TickPaint({
+    this.currentSecond,
+    this.tickColor,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (isHided) return;
     double scaleFactor = size.shortestSide / BASE_SIZE;
     _paintTickMarks(canvas, size, scaleFactor);
   }
