@@ -144,13 +144,13 @@ class _MyClockCustomizerState extends State<MyClockCustomizer> {
                     _model.chargeTime = chargeTime;
                   });
                 }),
-                _switch('Hide Second Background', _model.showSecondTickBackground,
+                _switch('Show Second Background', _model.showSecondTickBackground,
                     (bool value) {
                   setState(() {
                     _model.showSecondTickBackground = value;
                   });
                 }),
-                _switch('Hide Second Tick', _model.showSecondTick,
+                _switch('Show Second Tick', _model.showSecondTick,
                     (bool value) {
                   setState(() {
                     _model.showSecondTick = value;
